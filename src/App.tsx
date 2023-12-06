@@ -1,26 +1,41 @@
 import React from 'react';
-import logo from './logo.svg';
+import Footer from "./components/Footer";
+import ToDoList from "./components/ToDoList";
+import {useState, useEffect} from 'react';
+import {nanoid} from 'nanoid';
+import NotesList from './components/NotesList';
+import Header from './components/Header';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const App = () => {
+
+    const [darkMode, setDarkMode] = useState(false);
+
+    // const addNote = (text: any) => {
+    //     const date = new Date();
+    //     const newNote = {
+    //         id: nanoid(),
+    //         text: text,
+    //         date: date.toLocaleDateString(),
+    //     };
+    //     const newNotes = [...notes, newNote];
+    //     setNotes(newNotes);
+    // };
+    //
+    // const deleteNote = (id: any) => {
+    //     const newNotes = notes.filter((note) => note.id !== id);
+    //     setNotes(newNotes);
+    // };
+
+    return (
+        <div className={`${darkMode && 'dark-mode'} App`}>
+            <div className="container">
+                <Header setMode={setDarkMode}/>
+                <ToDoList/>
+            </div>
+            <Footer/>
+        </div>
+    );
+};
 
 export default App;
