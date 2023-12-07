@@ -10,13 +10,14 @@ import {
     ModalHeader,
     ModalProps
 } from "reactstrap";
-import React from "react";
+import React, {useContext} from "react";
 import {TaskProps, InputState} from "./ToDoList";
 import {nanoid} from "nanoid";
+import {contextId} from "./ToDoList";
 
+export const TaskModal = ({triggerEdit, submit, title, modal, toggleModal, setList}: ModalProps) => {
 
-export const CreateTaskModal = ({modal, toggleModal, setList}: ModalProps) => {
-
+    const customId = useContext(contextId);
     const [input, setInput] = React.useState<TaskProps>({
         id: "",
         text: "",
@@ -66,27 +67,26 @@ export const CreateTaskModal = ({modal, toggleModal, setList}: ModalProps) => {
         date: undefined as unknown as Date,
     });
 
+    const editTask = () => {
+        setList((prevList: Array<TaskProps>) => {
+            const newList = [...prevList]
+            const task = newList.find(task => task.id === customId)!;
+            task.text = input.text;
+            return [
+                ...newList
+            ];
+        });
+        triggerEdit();
+    };
+
     const clearState = () => setState({validateDescription: true});
 
 
     return (
         <Modal backdrop="static" isOpen={modal} toggle={toggleModal}>
-            <ModalHeader toggle={toggleModal}>Create a new Task</ModalHeader>
+            <ModalHeader toggle={toggleModal}>{title}</ModalHeader>
             <ModalBody>
                 <Form>
-                    {/*<FormGroup floating>*/}
-                        {/*<Input value={input.name}*/}
-                        {/*       onChange={formDataHandler}*/}
-                        {/*       autoComplete="true"*/}
-                        {/*       placeholder="name"*/}
-                        {/*       id="name"*/}
-                        {/*       name="name"*/}
-                        {/*       type="text"*/}
-                        {/*       invalid={!state.validateName}*/}
-                        {/*>*/}
-                        {/*</Input>*/}
-                        {/*<Label for="name">Task Name</Label>*/}
-                    {/*</FormGroup>*/}
                     <FormGroup floating>
                         <Input required
                                value={input.text}
@@ -103,8 +103,8 @@ export const CreateTaskModal = ({modal, toggleModal, setList}: ModalProps) => {
                 </Form>
             </ModalBody>
             <ModalFooter>
-                <Button color="primary" onClick={() => submitHandler()}>
-                    Submit
+                <Button color="primary" onClick={() => customId ? editTask() : submitHandler()}>
+                    {submit}
                 </Button>{' '}
                 <Button color="secondary" onClick={toggleModal}>
                     Cancel

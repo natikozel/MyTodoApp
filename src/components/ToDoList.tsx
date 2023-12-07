@@ -2,8 +2,8 @@ import React, {useEffect, useState} from "react";
 import ToDo from "./ToDo";
 import {Button} from "reactstrap";
 import '../App.css';
-import {CreateTaskModal} from "./CreateTaskModal";
-import {nanoid} from "nanoid";
+import {TaskModal} from "./TaskModal";
+
 
 export interface TaskProps {
     id: string,
@@ -16,10 +16,14 @@ export interface InputState {
     validateDescription: boolean;
 }
 
+export const contextId = React.createContext("");
+
 const ToDoList = () => {
 
     const [modal, setModal] = React.useState<boolean>(false);
     const [tasks, setTasks] = useState<Array<TaskProps>>([]);
+    const [editMode, setEditMode] = useState<boolean>(false);
+    const [editId, setEditId] = useState<string>("");
 
     useEffect(() => {
         const savedNotes = JSON.parse(
@@ -38,7 +42,21 @@ const ToDoList = () => {
     }, [tasks]);
 
 
-    const toggle = () => setModal(!modal);
+    const handleEdit = (id: string) => {
+        setEditId(id);
+        triggerEdit();
+    };
+
+    const triggerEdit = () => {
+        setEditMode(!editMode);
+        toggle();
+    };
+
+    const toggle = () => {
+        setModal(!modal);
+        if (modal)
+            setEditMode(false);
+    };
     const deleteFromList = (id: string) => setTasks(tasks.filter(task => task.id !== id));
 
 
@@ -46,11 +64,26 @@ const ToDoList = () => {
         <div>
             <div className="todo-wrapper">
                 <Button className="btn" onClick={toggle} size="lg" color="primary">Add Task</Button>
-                <CreateTaskModal
-                    modal={modal}
-                    toggleModal={toggle}
-                    setList={setTasks}
-                />
+                {editMode ?
+                    <contextId.Provider value={editId}>
+                        <TaskModal
+                            title={"Edit Task"}
+                            submit={"Edit"}
+                            modal={modal}
+                            toggleModal={toggle}
+                            setList={setTasks}
+                            triggerEdit={triggerEdit}
+                        />
+                    </contextId.Provider>
+                    :
+                    <TaskModal
+                        title={"Create a new Task"}
+                        submit={"Submit"}
+                        modal={modal}
+                        toggleModal={toggle}
+                        setList={setTasks}
+                    />
+                }
             </div>
             <div className="notes-list">
                 {tasks.map((item: TaskProps) => (
@@ -59,8 +92,10 @@ const ToDoList = () => {
                             id={item.id}
                             text={item.text}
                             date={item.date}
+                            modal={modal}
+                            toggleModal={toggle}
                             handleDeleteTask={deleteFromList}
-                            // handleDeleteNote={handleDeleteNote}
+                            handleEdit={handleEdit}
                         />
                     </div>
                 ))}
